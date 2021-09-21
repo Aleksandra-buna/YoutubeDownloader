@@ -13,9 +13,58 @@ title = tk.Label(master=window, text='Youtube Video Downloader', bg='#b3d6d5', f
                  font=('Cambria', 26, 'bold'))
 title.pack(pady=10, anchor='center')
 
-# creating window "URL"
-title_link = tk.Label(master=window, text='URL', bg='#b3d6d5', fg='#2d29a0',
-                      font=('Cambria', 16, 'bold'))
+direct = ""
+
+
+def choice_path():
+    path.config(text='')
+    global direct
+    direct = filedialog.askdirectory()
+    path.config(text=direct)
+
+
+def download():
+    url = str_url.get()
+    selected_type = type_record.get()
+
+    if len(url) < 7:
+        error_link.config(text='"'+url+'"'+'INCORRECT!')
+    if len(direct) < 3:
+        path_error.config(text='"'+selected_type+'"'+'Incorrect Path!')
+    else:
+        error_link.config(text='')
+        path_error.config(text='')
+        try:
+            yt = YouTube(url)
+            try:
+                if selected_type == types_entry[0]:
+                    file = yt.streams.order_by('resolution').desc().first()
+                elif selected_type == types_entry[1]:
+                    file = yt.streams.filter(res='360p').desc().first()
+                elif selected_type == [2]:
+                    file = yt.streams.filter(only_audio=True).desc().first()
+
+                try:
+                    file.download(direct)
+                    download_info.config(text='DOWNLOADED!')
+
+                    name = file.title
+                    size = file.filesize/1024000
+                    size = round(size, 1)
+
+                    download_name.config(text='Name: '+name)
+                    download_size.config(text='Size: '+str(size)+'MB')
+                    download_path.config(text='Path: '+direct)
+                except:
+                    download_info.config('Sorry, try again, please!')
+            except:
+                download_info.config('Sorry, try again, please!')
+        except:
+            error_link.config(text='"' + url + '"' + 'INCORRECT!')
+
+
+# creating a window "URL"
+title_link = tk.Label(master=window, text='URL', bg='#b3d6d5', fg='#2d29a0', font=('Cambria', 16, 'bold'))
 title_link.pack(padx=30, pady=38, anchor='nw')
 
 str_url = tk.StringVar()
@@ -65,7 +114,8 @@ type_record.master.option_add('*TCombobox*Listbox.font', ('Cambria', 12))
 
 # creating a button "Download"
 download_button = tk.Button(master=window, text='DOWNLOAD', background='#2d29a0', foreground='#b3d6d5',
-                            font=('Cambria', 22, 'bold'), activeforeground='#2d29a0', activebackground='#b3d6d5', width=20)
+                            font=('Cambria', 22, 'bold'), activeforeground='#2d29a0', activebackground='#b3d6d5',
+                            width=20, command=download)
 download_button.pack(pady=20)
 
 download_info = tk.Label(master=window,
